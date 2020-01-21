@@ -36,17 +36,34 @@ namespace TreinaWeb.CadastroPessoas.Repositorio
 
         public List<Pessoa> SelecionarTodos()
         {
-            CadastroPessoasDbContext contexto = new CadastroPessoasDbContext();
-            List<Pessoa> pessoas = contexto.Pessoas.OrderBy(o => o.Nome).ToList();
-            contexto.Dispose();
-            return pessoas;
+            /* CadastroPessoasDbContext contexto = new CadastroPessoasDbContext();
+             List<Pessoa> pessoas = contexto.Pessoas.OrderBy(o => o.Nome).ToList();
+             contexto.Dispose();
+             return pessoas;*/
+
+            using (ISession sessao = _sessionFactory.OpenSession())
+            {
+                IQuery consulta = sessao.CreateQuery("FROM Pessoa");
+                return consulta.List<Pessoa>().ToList();
+            }
+
         }
 
         public int Adicionar(Pessoa objeto)
         {
-            CadastroPessoasDbContext contexto = new CadastroPessoasDbContext();
-            contexto.Pessoas.Add(objeto);
-            return contexto.SaveChanges();            
+            /* CadastroPessoasDbContext contexto = new CadastroPessoasDbContext();
+             contexto.Pessoas.Add(objeto);
+             return contexto.SaveChanges();  */
+
+            using (ISession sessao = _sessionFactory.OpenSession())
+            {
+                using(var transacao = sessao.BeginTransaction())
+                {
+                    sessao.Save(objeto);
+                    transacao.Commit();
+                    return 0;
+                }
+            }
         }
         
     }

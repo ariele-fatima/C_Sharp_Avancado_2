@@ -103,7 +103,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <None Include="App - Copy.config" />
+    <None Include="App.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -116,7 +118,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="AppNHibernate.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TreinaWeb.CadastroPessoas.Dominio\TreinaWeb.CadastroPessoas.Dominio.csproj">

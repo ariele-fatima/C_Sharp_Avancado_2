@@ -15,6 +15,8 @@ namespace TreinaWeb.CadastroPessoas.Repositorio
 {
     public class PessoaRepositorio : IRepositorio<Pessoa>
     {
+        /*
+         //Se for usar o NHibernate
         private ISessionFactory _sessionFactory;
 
         public PessoaRepositorio()
@@ -33,28 +35,35 @@ namespace TreinaWeb.CadastroPessoas.Repositorio
             mapper.AddMapping(typeof(PessoaMap));
             return mapper.CompileMappingForAllExplicitlyAddedEntities();
         }
-
+        */
         public List<Pessoa> SelecionarTodos()
         {
-            /* CadastroPessoasDbContext contexto = new CadastroPessoasDbContext();
+            //Se for usar o Entity Framework
+             CadastroPessoasDbContext contexto = new CadastroPessoasDbContext();
              List<Pessoa> pessoas = contexto.Pessoas.OrderBy(o => o.Nome).ToList();
              contexto.Dispose();
-             return pessoas;*/
+             return pessoas;
 
+            /* 
+             //Se for usar o NHibernate
             using (ISession sessao = _sessionFactory.OpenSession())
             {
                 IQuery consulta = sessao.CreateQuery("FROM Pessoa");
                 return consulta.List<Pessoa>().ToList();
             }
+            */
 
         }
 
         public int Adicionar(Pessoa objeto)
         {
-            /* CadastroPessoasDbContext contexto = new CadastroPessoasDbContext();
+            //Se for usar o Entity Framework
+             CadastroPessoasDbContext contexto = new CadastroPessoasDbContext();
              contexto.Pessoas.Add(objeto);
-             return contexto.SaveChanges();  */
+             return contexto.SaveChanges();
 
+            /*
+            //Se for usar o NHibernate
             using (ISession sessao = _sessionFactory.OpenSession())
             {
                 using(var transacao = sessao.BeginTransaction())
@@ -64,6 +73,7 @@ namespace TreinaWeb.CadastroPessoas.Repositorio
                     return 0;
                 }
             }
+            */
         }
         
     }

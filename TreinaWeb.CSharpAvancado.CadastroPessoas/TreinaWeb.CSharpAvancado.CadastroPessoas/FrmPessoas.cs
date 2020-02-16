@@ -29,8 +29,19 @@ namespace TreinaWeb.CSharpAvancado.CadastroPessoas
         private void Form1_Load(object sender, EventArgs e)
         {
             //criando uma thread para o PreencherDataGridView
-            Thread thread1 = new Thread(PreencherDataGridView); 
-            thread1.Start();
+            //Thread thread1 = new Thread(PreencherDataGridView); 
+            //thread1.Start();
+
+            //criando uma Task, usamos o metodo Run para executa-la e o Run espera como parametro
+            //um delegate do tipo Action (tipo Action não tem retorno), que pode ser escrito com lambda
+            Task.Run(() => {
+                Thread.Sleep(5000);
+                IRepositorio<Pessoa> repositorioPessoas = new PessoaRepositorio();
+                dgvPessoas.Invoke((MethodInvoker)delegate { 
+                    dgvPessoas.DataSource = repositorioPessoas.SelecionarTodos();
+                    dgvPessoas.Refresh();
+                });
+            });
         }
 
         private void PreencherDataGridView()

@@ -103,6 +103,7 @@ namespace TreinaWeb.CSharpAvancado.CadastroPessoas
 
             //Exemplo 3, comente os outros exemplos para ver esse funcionar
             //Retornando valores com Task, no inicio passamos qual o tipo de retorno
+            /*
             Task<int>.Run(() =>
             {
                 Thread.Sleep(5000);
@@ -120,9 +121,50 @@ namespace TreinaWeb.CSharpAvancado.CadastroPessoas
                 //Depois utilizando o Result conseguimos trazer esse valor
                 MessageBox.Show(string.Format("Há {0} registros.", taskAnterior.Result));
             });
+            */
 
-
-
+            //Exemplo 4, comente os outros exemplos para ver esse funcionar
+            //Exceções
+            try
+            {
+                Task<int>.Run(() =>
+                {
+                    //forçando uma exceção
+                    throw new Exception("Teste");
+                    Thread.Sleep(5000);
+                    IRepositorio<Pessoa> repositorioPessoa = new PessoaRepositorio();
+                    _pessoas = repositorioPessoa.SelecionarTodos();
+                    return _pessoas.Count;
+                }).ContinueWith((taskAnterior) =>
+                {
+                    try
+                    {
+                        dgvPessoas.Invoke((MethodInvoker)delegate
+                        {
+                            dgvPessoas.DataSource = _pessoas;
+                            dgvPessoas.Refresh();
+                        });
+                        //A task só arremesa a exceção para quem a chamou se voce utilizar o Result ou o Wait nela
+                        MessageBox.Show(string.Format("Há {0} registros.", taskAnterior.Result));
+                    }
+                    //O compilador empacota as exceções das task em um AggregateException
+                    //por isso que no retorno da mensagem vem como "um ou mais erros"
+                    //para ver o erro da task mesmo ("Teste" nesse caso) é necessario
+                    //acessar uma propriedade do AggregateException, o InnerExceptions
+                    //que é uma lista com as exceções obtidas
+                    catch (AggregateException ex)
+                    {
+                        foreach(Exception excecao in ex.InnerExceptions)
+                        {
+                            MessageBox.Show(excecao.Message);
+                        }
+                    }                    
+                });
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void PreencherDataGridView()

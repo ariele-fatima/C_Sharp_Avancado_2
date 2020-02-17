@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,13 +33,68 @@ namespace TreinaWeb.CSharpAvancado.CadastroPessoas
             //Thread thread1 = new Thread(PreencherDataGridView); 
             //thread1.Start();
 
-            //criando uma Task, usamos o metodo Run para executa-la e o Run espera como parametro
-            //um delegate do tipo Action (tipo Action não tem retorno), que pode ser escrito com lambda
+            //Exemplo 1, comente os outros exemplos para ver esse funcionar
+            //criando uma Task, usamos o metodo Run para executa-la e o Run espera como parametro um delegate
+            //do tipo Action (tipo Action não tem retorno), que pode ser escrito com lambda
+            /*
             Task.Run(() => {
                 Thread.Sleep(5000);
                 IRepositorio<Pessoa> repositorioPessoas = new PessoaRepositorio();
                 dgvPessoas.Invoke((MethodInvoker)delegate { 
                     dgvPessoas.DataSource = repositorioPessoas.SelecionarTodos();
+                    dgvPessoas.Refresh();
+                });
+            });
+            */
+
+            //Exemplo 2.1, comente os outros exemplos para ver esse funcionar
+            //O wait obriga o programa a esperar enquanto minhaTask não termina tudo que ela tem pra fazer
+            //o problema é que o wait aqui está sendo chamado dentro do Form1_Load fazendo que não carregue a 
+            //tela enquanto a minhaTask não termina, assim perdemos a utilidade de se usar Task/Thread
+            /*
+            Task minhaTask = Task.Run(() => {
+                Thread.Sleep(5000);
+                IRepositorio<Pessoa> repositorioPessoa = new PessoaRepositorio();
+                _pessoas = repositorioPessoa.SelecionarTodos();
+            });
+            minhaTask.Wait();
+            dgvPessoas.DataSource = _pessoas;
+            dgvPessoas.Refresh();
+            */
+
+            //Exemplo 2.2, comente os outros exemplos para ver esse funcionar
+            //Uma forma de resolver esse problema é com GetAwaiter, que é o objeto que será notificado quando
+            //a minhaTask terminou de executar, temos o metodo OnCompleted que vai dizer o que deve ser feito
+            //depois que minhaTask terminar, OnCompleted tambem recebe como paramentro um delegate do tipo Action
+            /*
+            Task minhaTask = Task.Run(() => {
+                Thread.Sleep(5000);
+                IRepositorio<Pessoa> repositorioPessoa = new PessoaRepositorio();
+                _pessoas = repositorioPessoa.SelecionarTodos();
+            });
+            TaskAwaiter awaiter = minhaTask.GetAwaiter();
+            //aqui nao precisa do Invoke para manipular o dgvPessoas porque quem vai alterar o dgvPessoas
+            //é a thread do Form1_Load que é a qual o componente pertence
+            awaiter.OnCompleted(() => {
+                dgvPessoas.DataSource = _pessoas;
+                dgvPessoas.Refresh();
+            });
+            */
+
+            //Exemplo 2.3, comente os outros exemplos para ver esse funcionar
+            //Outra forma de resolver esse problema é usando o ContinueWith que recebe como parametro a task retornada pelo metodo Run
+            //e um metodo Action que essa nova task criada pelo ContinueWith tera que realizar assim que a primeira task terminar
+            Task.Run(() =>
+            {
+                Thread.Sleep(5000);
+                IRepositorio<Pessoa> repositorioPessoa = new PessoaRepositorio();
+                _pessoas = repositorioPessoa.SelecionarTodos();
+            }).ContinueWith((taskAnterior) =>
+            {
+                //Como ContinueWith cria outra task temos que chamar o Invoke para manipular o dgvPessoas
+                dgvPessoas.Invoke((MethodInvoker)delegate
+                {
+                    dgvPessoas.DataSource = _pessoas;
                     dgvPessoas.Refresh();
                 });
             });
@@ -120,7 +176,7 @@ namespace TreinaWeb.CSharpAvancado.CadastroPessoas
         {
             FrmAdicionarPessoa frmAdicionarPessoa = new FrmAdicionarPessoa();
             frmAdicionarPessoa.ShowDialog();
-            PreencherDataGridView();
+            //PreencherDataGridView();
         }
     }
 }

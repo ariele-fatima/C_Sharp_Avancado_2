@@ -84,6 +84,7 @@ namespace TreinaWeb.CSharpAvancado.CadastroPessoas
             //Exemplo 2.3, comente os outros exemplos para ver esse funcionar
             //Outra forma de resolver esse problema é usando o ContinueWith que recebe como parametro a task retornada pelo metodo Run
             //e um metodo Action que essa nova task criada pelo ContinueWith tera que realizar assim que a primeira task terminar
+            /*
             Task.Run(() =>
             {
                 Thread.Sleep(5000);
@@ -98,6 +99,30 @@ namespace TreinaWeb.CSharpAvancado.CadastroPessoas
                     dgvPessoas.Refresh();
                 });
             });
+            */
+
+            //Exemplo 3, comente os outros exemplos para ver esse funcionar
+            //Retornando valores com Task, no inicio passamos qual o tipo de retorno
+            Task<int>.Run(() =>
+            {
+                Thread.Sleep(5000);
+                IRepositorio<Pessoa> repositorioPessoa = new PessoaRepositorio();
+                _pessoas = repositorioPessoa.SelecionarTodos();
+                //temos que colocar o return no final do run como em metodos normais
+                return _pessoas.Count;
+            }).ContinueWith((taskAnterior) =>
+            {                
+                dgvPessoas.Invoke((MethodInvoker)delegate
+                {
+                    dgvPessoas.DataSource = _pessoas;
+                    dgvPessoas.Refresh();
+                });
+                //Depois utilizando o Result conseguimos trazer esse valor
+                MessageBox.Show(string.Format("Há {0} registros.", taskAnterior.Result));
+            });
+
+
+
         }
 
         private void PreencherDataGridView()

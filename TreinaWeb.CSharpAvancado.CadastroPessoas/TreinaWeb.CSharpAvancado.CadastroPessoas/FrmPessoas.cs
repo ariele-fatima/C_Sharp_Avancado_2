@@ -29,6 +29,7 @@ namespace TreinaWeb.CSharpAvancado.CadastroPessoas
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            #region aprendendo sobre tasks
             //criando uma thread para o PreencherDataGridView
             //Thread thread1 = new Thread(PreencherDataGridView); 
             //thread1.Start();
@@ -123,6 +124,7 @@ namespace TreinaWeb.CSharpAvancado.CadastroPessoas
             });
             */
 
+            /*
             //Exemplo 4, comente os outros exemplos para ver esse funcionar
             //Exceções
             try
@@ -165,13 +167,31 @@ namespace TreinaWeb.CSharpAvancado.CadastroPessoas
             {
                 MessageBox.Show(ex.Message);
             }
+            */
+            #endregion
+            //PreencherDataGridView();
+            PreencherDataGridViewAsync();
         }
 
-        private void PreencherDataGridView()
+        //async informa que o método é assincrono, então como assincrono ele precisa 
+        //aguardar o resultado de um task para ser terminado, por isso o uso do await
+        private async void PreencherDataGridViewAsync()
         {
+            int quantidadeLinhas = await PreencherDataGridView();
+            MessageBox.Show(string.Format("Há {0} registros.", quantidadeLinhas));
+            dgvPessoas.Invoke((MethodInvoker)delegate {
+                dgvPessoas.DataSource = _pessoas;
+                dgvPessoas.Refresh();            
+            });
+        }
+
+
+        private Task<int> PreencherDataGridView()
+        {
+            #region aprendendo sobre thread
+            /*
             //Para exceções não adiantaria colocar um try catch aqui no metodo PreencherDataGridView, 
             //exceções devem ser tratadas dentro do metodo utlizado pelas threads
-
             Thread.Sleep(5000);
             Thread thread2 = new Thread(PreencherListaPessoas);
             Thread thread3 = new Thread(PreencherListaPessoas2);
@@ -189,7 +209,16 @@ namespace TreinaWeb.CSharpAvancado.CadastroPessoas
                 dgvPessoas.DataSource = _pessoas;
                 dgvPessoas.Refresh();
             });
-            
+            */
+            #endregion
+
+            return Task<int>.Run(() =>
+            {
+                Thread.Sleep(2000);
+                IRepositorio<Pessoa> repositorioPessoa = new PessoaRepositorio();
+                _pessoas = repositorioPessoa.SelecionarTodos();
+                return _pessoas.Count;
+            });
         }
 
         private void PreencherListaPessoas()
@@ -244,6 +273,7 @@ namespace TreinaWeb.CSharpAvancado.CadastroPessoas
             FrmAdicionarPessoa frmAdicionarPessoa = new FrmAdicionarPessoa();
             frmAdicionarPessoa.ShowDialog();
             //PreencherDataGridView();
+            PreencherDataGridViewAsync();
         }
     }
 }

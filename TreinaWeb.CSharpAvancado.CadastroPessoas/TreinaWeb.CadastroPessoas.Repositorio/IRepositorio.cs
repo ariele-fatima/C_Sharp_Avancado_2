@@ -10,5 +10,6 @@ namespace TreinaWeb.CadastroPessoas.Repositorio
     {
         List<TTipo> SelecionarTodos();
         int Adicionar(TTipo objeto);
+        void AdicionarAsync(TTipo objeto, Action<int> callBack);
     }
 }

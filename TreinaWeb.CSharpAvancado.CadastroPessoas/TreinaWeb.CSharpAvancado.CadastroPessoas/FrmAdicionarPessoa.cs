@@ -28,7 +28,11 @@ namespace TreinaWeb.CSharpAvancado.CadastroPessoas
                 Endereco = txbEndereco.Text            
             };
             IRepositorio<Pessoa> repositorioPessoa = new PessoaRepositorio();
-            repositorioPessoa.Adicionar(pessoa);
+            //repositorioPessoa.Adicionar(pessoa);
+            repositorioPessoa.AdicionarAsync(pessoa, (linhasAfetadas) => 
+            {
+                MessageBox.Show(string.Format("Foi inserido(s) {0} registro(s).", linhasAfetadas));
+            });
             Close();
         }
     }

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TreinaWeb.CadastroPessoas.Dominio;
 using TreinaWeb.CadastroPessoas.Persistencia.EF;
@@ -15,6 +16,7 @@ namespace TreinaWeb.CadastroPessoas.Repositorio
 {
     public class PessoaRepositorio : IRepositorio<Pessoa>
     {
+        #region NHibernate
         /*
          //Se for usar o NHibernate
         private ISessionFactory _sessionFactory;
@@ -36,6 +38,8 @@ namespace TreinaWeb.CadastroPessoas.Repositorio
             return mapper.CompileMappingForAllExplicitlyAddedEntities();
         }
         */
+        #endregion
+
         public List<Pessoa> SelecionarTodos()
         {
             //Se for usar o Entity Framework
@@ -44,6 +48,7 @@ namespace TreinaWeb.CadastroPessoas.Repositorio
              contexto.Dispose();
              return pessoas;
 
+            #region NHibernate
             /* 
              //Se for usar o NHibernate
             using (ISession sessao = _sessionFactory.OpenSession())
@@ -52,7 +57,7 @@ namespace TreinaWeb.CadastroPessoas.Repositorio
                 return consulta.List<Pessoa>().ToList();
             }
             */
-
+            #endregion
         }
 
         public int Adicionar(Pessoa objeto)
@@ -62,6 +67,7 @@ namespace TreinaWeb.CadastroPessoas.Repositorio
              contexto.Pessoas.Add(objeto);
              return contexto.SaveChanges();
 
+            #region NHibernate
             /*
             //Se for usar o NHibernate
             using (ISession sessao = _sessionFactory.OpenSession())
@@ -74,7 +80,19 @@ namespace TreinaWeb.CadastroPessoas.Repositorio
                 }
             }
             */
+            #endregion
         }
-        
+
+        public async void AdicionarAsync(Pessoa objeto, Action<int> callBack)
+        {
+            CadastroPessoasDbContext contexto = new CadastroPessoasDbContext();
+            contexto.Pessoas.Add(objeto);
+            Thread.Sleep(2000);
+            await contexto.SaveChangesAsync().ContinueWith((taskAnterior) => 
+            {
+                int linhasAfetadas = taskAnterior.Result;
+                callBack(linhasAfetadas);
+            });
+        }
     }
 }

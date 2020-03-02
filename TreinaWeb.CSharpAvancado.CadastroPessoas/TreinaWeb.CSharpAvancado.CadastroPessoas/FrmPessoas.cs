@@ -169,6 +169,7 @@ namespace TreinaWeb.CSharpAvancado.CadastroPessoas
             }
             */
             #endregion
+            txbPesquisa.Text = string.Empty;
             //PreencherDataGridView();
             PreencherDataGridViewAsync();
         }
@@ -274,6 +275,13 @@ namespace TreinaWeb.CSharpAvancado.CadastroPessoas
             frmAdicionarPessoa.ShowDialog();
             //PreencherDataGridView();
             PreencherDataGridViewAsync();
+        }
+
+        private void btnPesquisar_Click(object sender, EventArgs e)
+        {
+            IRepositorio<Pessoa> repositorioPessoas = new PessoaRepositorio();
+            dgvPessoas.DataSource = repositorioPessoas.Selecionar(pessoa => pessoa.Nome.Contains(txbPesquisa.Text));
+            dgvPessoas.Refresh();
         }
     }
 }

@@ -94,5 +94,13 @@ namespace TreinaWeb.CadastroPessoas.Repositorio
                 callBack(linhasAfetadas);
             });
         }
+        //Utilizando paralelização com AsParallel
+        public List<Pessoa> Selecionar(Func<Pessoa, bool> whereClause)
+        {
+            CadastroPessoasDbContext contexto = new CadastroPessoasDbContext();
+            List<Pessoa> pessoas = contexto.Pessoas.AsParallel().Where(whereClause).ToList();
+            contexto.Dispose();
+            return pessoas;
+        }
     }
 }
